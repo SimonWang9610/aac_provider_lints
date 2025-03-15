@@ -42,7 +42,6 @@ class _RiverpodAState extends ConsumerState<RiverpodA> {
             return Container();
           },
         ),
-        // todo: implement lint for this case
         Text(
           // expect_lint: avoid_inline_provider_invocation
           ref.watch(fProvider).toString(),
