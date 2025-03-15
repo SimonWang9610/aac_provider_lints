@@ -32,6 +32,11 @@ class AvoidRefAsFunctionParameter extends RiverpodLintRule {
     context.registry.addFunctionDeclaration((node) {
       final parameters = node.declaredElement?.parameters ?? [];
 
+      final riverpodAnnotated =
+          LintHelper.checkIfHasRiverpodAnnotation(node.declaredElement);
+
+      if (riverpodAnnotated) return;
+
       for (final param in parameters) {
         final type = param.declaration.type;
 

@@ -7,25 +7,26 @@ import 'package:aac_provider_lints/src/riverpod_lint_rule.dart';
 
 const _watchCode = LintCode(
   name: "always_ref_watch_in_build_method",
-  problemMessage: "Always use ref.watch in the build method.",
+  problemMessage: "Bad ref practices detected.",
   errorSeverity: ErrorSeverity.WARNING,
   correctionMessage:
-      "User ref.read instead of ref.watch in the build method to avoid unnecessary re-build.",
+      "User ref.read outside of build methods to avoid unnecessary re-build.",
 );
 
 const _readCode = LintCode(
   name: "avoid_ref_read_in_build_method",
-  problemMessage: "Avoid ref.read in the build method.",
+  problemMessage: "Bad ref practices detected.",
   errorSeverity: ErrorSeverity.WARNING,
   correctionMessage:
       "User ref.watch instead. If you did it purposely, consider moving the logic outside of build methods.",
 );
 
-class RefGoodPractices extends RiverpodLintRule {
-  const RefGoodPractices() : super(code: _code);
+// todo: avoid custom build methods different from the Widget.build and Provider.build
+class AvoidRefBadPractices extends RiverpodLintRule {
+  const AvoidRefBadPractices() : super(code: _code);
 
   static const _code = LintCode(
-    name: 'ref_good_practices',
+    name: 'ref_bad_practices',
     problemMessage: 'Bad ref practices detected.',
     errorSeverity: ErrorSeverity.WARNING,
   );
@@ -76,7 +77,8 @@ class RefGoodPractices extends RiverpodLintRule {
     /// final a = Provider((ref) => ref.watch(provider));
     /// ```
     if (ancestor is ArgumentList) {
-      final isProviderCreation = LintHelper.checkIfProviderCreation(ancestor);
+      final isProviderCreation =
+          LintHelper.checkIfLegacyProviderCreation(ancestor);
 
       if (!isProviderCreation) {
         return _watchCode;
@@ -98,6 +100,17 @@ class RefGoodPractices extends RiverpodLintRule {
       final isWidgetFunction = LintHelper.checkIfWidgetFunction(ancestor);
 
       if (!isWidgetFunction) {
+        return _watchCode;
+      }
+
+      return null;
+    }
+
+    if (ancestor is FunctionDeclaration) {
+      final riverpodAnnotated =
+          LintHelper.checkIfHasRiverpodAnnotation(ancestor.declaredElement);
+
+      if (!riverpodAnnotated) {
         return _watchCode;
       }
 
@@ -142,7 +155,8 @@ class RefGoodPractices extends RiverpodLintRule {
     /// final a = Provider((ref) => ref.read(provider));
     /// ```
     if (ancestor is ArgumentList) {
-      final isProviderCreation = LintHelper.checkIfProviderCreation(ancestor);
+      final isProviderCreation =
+          LintHelper.checkIfLegacyProviderCreation(ancestor);
 
       if (isProviderCreation) {
         return _readCode;
@@ -164,6 +178,17 @@ class RefGoodPractices extends RiverpodLintRule {
       final isWidgetFunction = LintHelper.checkIfWidgetFunction(ancestor);
 
       if (isWidgetFunction) {
+        return _readCode;
+      }
+
+      return null;
+    }
+
+    if (ancestor is FunctionDeclaration) {
+      final riverpodAnnotated =
+          LintHelper.checkIfHasRiverpodAnnotation(ancestor.declaredElement);
+
+      if (riverpodAnnotated) {
         return _readCode;
       }
 

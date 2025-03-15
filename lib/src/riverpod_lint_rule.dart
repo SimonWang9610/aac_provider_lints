@@ -9,7 +9,7 @@ abstract class RiverpodLintRule extends DartLintRule with _ParseRiverpod {
     CustomLintResolver resolver,
     CustomLintContext context,
   ) async {
-    await _setupRiverpod(resolver, context);
+    // await _setupRiverpod(resolver, context);
     await super.startUp(resolver, context);
   }
 }
@@ -17,6 +17,7 @@ abstract class RiverpodLintRule extends DartLintRule with _ParseRiverpod {
 mixin _ParseRiverpod {
   static final _contextKey = Object();
 
+  // ignore: unused_element
   Future<void> _setupRiverpod(
     CustomLintResolver resolver,
     CustomLintContext context,

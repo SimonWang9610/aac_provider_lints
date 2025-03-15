@@ -4,9 +4,9 @@ import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 import 'package:aac_provider_lints/src/riverpod_lint_rule.dart';
 
-const _problem = "riverpod provider should be global variables.";
+const _problem = "Bad ref practices detected.";
 const _correction =
-    "make it as a global provider and access it using WidgetRef/Ref.";
+    "Access it using WidgetRef/Ref inside Riverpod widgets/providers.";
 
 const _severity = ErrorSeverity.WARNING;
 

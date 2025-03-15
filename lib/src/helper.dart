@@ -9,7 +9,7 @@ const _hooksWidgetRef =
 
 class LintHelper {
   static bool isRiverpodProviderFromType(DartType type) {
-    return _providerChecker.isExactlyType(type);
+    return _providerChecker.isAssignableFromType(type);
   }
 
   static bool isRef(DartType type) {
@@ -42,18 +42,32 @@ class LintHelper {
     return isRefType;
   }
 
-  static bool checkIfProviderCreation(ArgumentList argumentList) {
-    final parent = argumentList.parent;
+  static bool checkIfLegacyProviderCreation(ArgumentList argumentList) {
+    AstNode? ancestor = argumentList.parent;
 
-    if (parent == null || parent is! InstanceCreationExpression) return false;
+    while (ancestor != null) {
+      if (ancestor is InstanceCreationExpression) {
+        final instanceType = ancestor.staticType;
 
-    final instanceType = parent.staticType;
+        if (instanceType == null) return false;
 
-    if (instanceType == null) return false;
+        final isProviderCreation = isRiverpodProviderFromType(instanceType);
 
-    final isProviderCreation = isRiverpodProviderFromType(instanceType);
+        return isProviderCreation;
+      } else if (ancestor is FunctionExpressionInvocation) {
+        final type = ancestor.staticInvokeType;
+        if (type != null) {
+          final isProvider = checkIfFamilyOrAutoDisposeProvider(type);
 
-    return isProviderCreation;
+          if (isProvider) {
+            return true;
+          }
+        }
+      }
+      ancestor = ancestor.parent;
+    }
+
+    return false;
   }
 
   static bool checkIfWidgetFunction(NamedExpression namedExpression) {
@@ -62,6 +76,30 @@ class LintHelper {
     final isWidget = _widgetChecker.isAssignableFromType(type.returnType);
 
     return isWidget;
+  }
+
+  static bool checkIfFamilyOrAutoDisposeProvider(DartType type) {
+    if (type is! FunctionType) return false;
+    final returnType = type.returnType;
+
+    return isRiverpodProviderFromType(returnType) ||
+        familyType.isAssignableFromType(returnType);
+  }
+
+  static bool checkIfHasRiverpodAnnotation(Element? ele) {
+    if (ele == null) return false;
+
+    final metadata = ele.metadata;
+
+    return metadata.any(
+      (e) {
+        final name = e.element?.declaration?.getDisplayString();
+
+        if (name == null) return false;
+
+        return name.contains("riverpod") || name.contains("Riverpod");
+      },
+    );
   }
 }
 
