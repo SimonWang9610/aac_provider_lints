@@ -3,11 +3,9 @@
 /// More dartdocs go here.
 library;
 
-import 'package:aac_provider_lints/src/lints/avoid_inline_invocation.dart';
-import 'package:aac_provider_lints/src/lints/avoid_provider_as_parameter.dart';
-import 'package:aac_provider_lints/src/lints/avoid_ref_parameters.dart';
-import 'package:aac_provider_lints/src/lints/avoid_provider_bad_practices.dart';
+import 'package:aac_provider_lints/src/lints/avoid_dynamic_provider.dart';
 import 'package:aac_provider_lints/src/lints/avoid_ref_bad_practices.dart';
+import 'package:aac_provider_lints/src/lints/avoid_riverpod_parameters.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
 // This is the entrypoint of our custom linter
@@ -19,14 +17,8 @@ class _Linter extends PluginBase {
   @override
   List<LintRule> getLintRules(CustomLintConfigs configs) => const [
         // providers lints
-        AvoidProviderBadPractices(),
-        AvoidProviderAsFunctionParameter(),
-        AvoidProviderAsMethodParameter(),
-        // ref lints
-        AvoidRefBadPractices(),
-        AvoidRefAsFunctionParameter(),
-        AvoidRefAsMethodParameter(),
-        AvoidRefAsConstructorParameter(),
-        AvoidInlineRefInvocation(),
+        AvoidDynamicRiverpodProvider(),
+        ...refInvocationLints,
+        ...parameterLints,
       ];
 }

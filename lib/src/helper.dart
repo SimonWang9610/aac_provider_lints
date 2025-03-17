@@ -101,6 +101,16 @@ class LintHelper {
       },
     );
   }
+
+  static bool isRiverpodRelatedClass(AstNode node) {
+    if (node is! ClassDeclaration) return false;
+
+    final superClassElement = node.extendsClause?.superclass.type?.element;
+
+    if (superClassElement == null) return false;
+
+    return LintHelper.isRiverpodWidget(superClassElement);
+  }
 }
 
 const _providerChecker = TypeChecker.any([

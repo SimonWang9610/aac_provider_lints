@@ -11,15 +11,7 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/to/develop-packages). 
 -->
 
-## TODO
-1. add test for ref parameter lints
-    - positional parameters
-    - named parameters
-    - optional parameters
+# Custom Riverpod bad practice lints
 
-2. add test for provider bad practices lints
-3. add test for provider parameter lints
-    - positional parameters
-    - named parameters
-    - optional parameters
 
+## `

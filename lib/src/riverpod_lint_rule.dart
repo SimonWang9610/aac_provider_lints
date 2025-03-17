@@ -1,8 +1,9 @@
+import 'package:aac_provider_lints/src/codes.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 import 'package:riverpod_analyzer_utils/riverpod_analyzer_utils.dart';
 
 abstract class RiverpodLintRule extends DartLintRule with _ParseRiverpod {
-  const RiverpodLintRule({required super.code});
+  const RiverpodLintRule({super.code = codePlaceholder});
 
   @override
   Future<void> startUp(
