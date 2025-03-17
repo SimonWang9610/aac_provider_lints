@@ -76,3 +76,22 @@ class _NormalClass {
     required this.streamProvider,
   });
 }
+
+class SomeWidget extends ConsumerWidget {
+  final Provider<int> provider;
+  final StateProvider<int> stateProvider;
+  final FutureProvider<int> futureProvider;
+  final StreamProvider<int> streamProvider;
+  const SomeWidget({
+    super.key,
+    required this.provider,
+    required this.stateProvider,
+    required this.futureProvider,
+    required this.streamProvider,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container();
+  }
+}

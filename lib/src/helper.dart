@@ -102,14 +102,21 @@ class LintHelper {
     );
   }
 
-  static bool isRiverpodRelatedClass(AstNode node) {
-    if (node is! ClassDeclaration) return false;
+  static bool isRiverpodWidgetBuildMethod(MethodDeclaration method) {
+    final element = method.declaredElement;
 
-    final superClassElement = node.extendsClause?.superclass.type?.element;
+    if (element == null) return false;
+    final params = element.parameters;
 
-    if (superClassElement == null) return false;
+    if (!isBuildMethod(element) || params.length < 2) return false;
 
-    return LintHelper.isRiverpodWidget(superClassElement);
+    final firstParam = params[0];
+    final secondParam = params[1];
+
+    final buildContext = firstParam.type.getDisplayString() == "BuildContext";
+    final widgetRef = isWidgetRef(secondParam.type);
+
+    return buildContext && widgetRef;
   }
 }
 

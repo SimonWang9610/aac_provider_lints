@@ -16,11 +16,6 @@ class AvoidRiverpodFunctionParameter extends RiverpodLintRule {
     context.registry.addFunctionDeclaration((node) {
       final parameters = node.declaredElement?.parameters ?? [];
 
-      final ancestor = node.thisOrAncestorMatching(
-          (ancestor) => LintHelper.isRiverpodRelatedClass(node));
-
-      if (ancestor != null) return;
-
       final riverpodAnnotated =
           LintHelper.checkIfHasRiverpodAnnotation(node.declaredElement);
 
@@ -46,12 +41,11 @@ class AvoidRiverpodMethodParameter extends RiverpodLintRule {
     context.registry.addMethodDeclaration((node) {
       final methodName = node.declaredElement?.name;
 
+      final isBuildMethod = LintHelper.isRiverpodWidgetBuildMethod(node);
+
+      if (isBuildMethod) return;
+
       final parameters = node.declaredElement?.parameters ?? [];
-
-      final ancestor = node.thisOrAncestorMatching(
-          (ancestor) => LintHelper.isRiverpodRelatedClass(node));
-
-      if (ancestor != null) return;
 
       final isPrivate = methodName != null && methodName.startsWith('_');
 
