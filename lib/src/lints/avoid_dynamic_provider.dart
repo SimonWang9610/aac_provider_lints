@@ -25,9 +25,9 @@ class AvoidDynamicRiverpodProvider extends RiverpodLintRule {
 
         if (!isProvider) return;
 
-        final isDynamicInitialized = _insideClassOrFunction(variable.parent);
+        final enclosedEle = _findEnclosingClassOrFunction(variable.parent);
 
-        if (isDynamicInitialized) {
+        if (enclosedEle != null) {
           reporter.atNode(
             variable,
             dynamicProviderCode,
@@ -37,15 +37,15 @@ class AvoidDynamicRiverpodProvider extends RiverpodLintRule {
     );
   }
 
-  bool _insideClassOrFunction(AstNode? node) {
+  AstNode? _findEnclosingClassOrFunction(AstNode? node) {
     if (node == null) {
-      return false;
+      return null;
     }
 
     if (node is ClassDeclaration || node is FunctionDeclaration) {
-      return true;
+      return node;
     }
 
-    return _insideClassOrFunction(node.parent);
+    return _findEnclosingClassOrFunction(node.parent);
   }
 }

@@ -14,7 +14,7 @@ class LintChecker {
     for (final param in params) {
       final type = param.declaration.type;
 
-      final isRef = LintHelper.isRef(type);
+      final isRef = LintHelper.isAnyRef(type);
 
       if (isRef && (skipRefCheck == false)) {
         reporter.atElement(
@@ -38,13 +38,14 @@ class LintChecker {
       VariableElement variable, ErrorReporter reporter) {
     final type = variable.declaration.type;
 
-    final isRef = LintHelper.isRef(type);
+    final isRef = LintHelper.isAnyRef(type);
 
     if (isRef) {
       reporter.atElement(
         variable,
         refParamCode,
       );
+      return;
     }
 
     final isProvider = LintHelper.isRiverpodProviderFromType(type);
@@ -64,46 +65,33 @@ class LintChecker {
 
     if (!isRead) return;
 
-    final (method, fn) = _findClosetInvocationParent(invocation);
+    final ancestor = _findingEnclosingElement(invocation);
 
     LintCode? code;
 
-    if (method != null && method.declaredElement?.name == "build") {
-      // ref.read invoked inside build method
+    if (ancestor is MethodDeclaration &&
+        LintHelper.isWidgetBuildOrProviderBuild(ancestor)) {
       code = refReadCode;
-    } else if (fn is ArgumentList) {
-      final isProviderCreation = LintHelper.checkIfLegacyProviderCreation(fn);
+    } else if (ancestor is ArgumentList) {
+      final isProviderCreation = LintHelper.checkIfLegacyProvider(ancestor);
 
-      // ref.read invoked inside a provider creation, like Provider((ref) => ref.read(provider))
       if (isProviderCreation) {
         code = refReadCode;
       }
-    } else if (fn is NamedExpression) {
-      final isWidgetFunction = LintHelper.checkIfWidgetFunction(fn);
+    } else if (ancestor is NamedExpression) {
+      final isWidgetFunction = LintHelper.checkIfWidgetFunction(ancestor);
 
-      // ref.read invoked inside a named function that returns a widget,
-      // like Builder(builder: (context) {ref.read(provider); ..., return Container();})
       if (isWidgetFunction) {
         code = refReadCode;
       }
-    } else if (fn is FunctionDeclaration) {
+    } else if (ancestor is FunctionDeclaration) {
       final riverpodAnnotated =
-          LintHelper.checkIfHasRiverpodAnnotation(fn.declaredElement);
+          LintHelper.checkIfHasRiverpodAnnotation(ancestor.declaredElement);
 
-      // ref.read invoked inside a function provider (via riverpod generator)
-      // like:
-      /// ```dart
-      /// @riverpod
-      /// int myProvider(Ref ref) {
-      ///  ref.read(provider);
-      /// return 0;
-      /// }
-      /// ```
       if (riverpodAnnotated) {
         code = refReadCode;
       }
     }
-
     if (code != null) {
       reporter.atNode(
         invocation,
@@ -119,27 +107,28 @@ class LintChecker {
 
     if (!isWatch) return;
 
-    final (method, fn) = _findClosetInvocationParent(invocation);
+    final ancestor = _findingEnclosingElement(invocation);
 
     LintCode? code;
 
-    if (method != null && method.declaredElement?.name != "build") {
+    if (ancestor is MethodDeclaration &&
+        !LintHelper.isWidgetBuildOrProviderBuild(ancestor)) {
       code = refWatchCode;
-    } else if (fn is ArgumentList) {
-      final isProviderCreation = LintHelper.checkIfLegacyProviderCreation(fn);
+    } else if (ancestor is ArgumentList) {
+      final isProviderCreation = LintHelper.checkIfLegacyProvider(ancestor);
 
       if (!isProviderCreation) {
         code = refWatchCode;
       }
-    } else if (fn is NamedExpression) {
-      final isWidgetFunction = LintHelper.checkIfWidgetFunction(fn);
+    } else if (ancestor is NamedExpression) {
+      final isWidgetFunction = LintHelper.checkIfWidgetFunction(ancestor);
 
       if (!isWidgetFunction) {
         code = refWatchCode;
       }
-    } else if (fn is FunctionDeclaration) {
+    } else if (ancestor is FunctionDeclaration) {
       final riverpodAnnotated =
-          LintHelper.checkIfHasRiverpodAnnotation(fn.declaredElement);
+          LintHelper.checkIfHasRiverpodAnnotation(ancestor.declaredElement);
 
       if (!riverpodAnnotated) {
         code = refWatchCode;
@@ -155,23 +144,27 @@ class LintChecker {
   }
 }
 
-(MethodDeclaration?, AstNode?) _findClosetInvocationParent(
-    MethodInvocation invocation) {
-  MethodDeclaration? callerDeclaration;
-  FunctionExpression? callerFunction;
+/// Find the closest element that encloses the invocation.
+///
+/// [MethodDeclaration] - ReturnType methodName() { [invocation] }
+///
+/// [ArgumentList] - methodName([invocation])
+///
+/// [NamedExpression] - nameParameter: ReturnType methodName() { [invocation] }
+///
+/// [FunctionDeclaration] - ReturnType fnName() { [invocation] }
+AstNode? _findingEnclosingElement(MethodInvocation invocation) {
+  AstNode? ancestor = invocation.parent;
 
-  invocation.thisOrAncestorMatching(
-    (ancestor) {
-      if (ancestor is MethodDeclaration) {
-        callerDeclaration = ancestor;
-        return true;
-      } else if (ancestor is FunctionExpression) {
-        callerFunction = ancestor;
-        return true;
-      }
-      return false;
-    },
-  );
+  while (ancestor != null) {
+    if (ancestor is MethodDeclaration) {
+      return ancestor;
+    } else if (ancestor is FunctionExpression) {
+      return ancestor.parent;
+    }
 
-  return (callerDeclaration, callerFunction?.parent);
+    ancestor = ancestor.parent;
+  }
+
+  return null;
 }

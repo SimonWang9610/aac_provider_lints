@@ -41,7 +41,7 @@ class AvoidRiverpodMethodParameter extends RiverpodLintRule {
     context.registry.addMethodDeclaration((node) {
       final methodName = node.declaredElement?.name;
 
-      final isBuildMethod = LintHelper.isRiverpodWidgetBuildMethod(node);
+      final isBuildMethod = LintHelper.isConsumerWidgetBuildMethod(node);
 
       if (isBuildMethod) return;
 
