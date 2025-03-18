@@ -2,10 +2,29 @@ import 'package:aac_provider_lints/src/codes.dart';
 import 'package:aac_provider_lints/src/helper.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
 class LintChecker {
+  static LintCode? checkType(DartType? type, {bool? skipRefCheck}) {
+    if (type == null) return null;
+
+    final isRef = LintHelper.isAnyRef(type);
+
+    if (isRef && skipRefCheck != true) {
+      return refParamCode;
+    }
+
+    final isProvider = LintHelper.isRiverpodProviderFromType(type);
+
+    if (isProvider) {
+      return providerParamCode;
+    }
+
+    return null;
+  }
+
   static void checkRiverpodParameters(
     List<ParameterElement> params,
     ErrorReporter reporter, {
@@ -14,21 +33,12 @@ class LintChecker {
     for (final param in params) {
       final type = param.declaration.type;
 
-      final isRef = LintHelper.isAnyRef(type);
+      final code = checkType(type, skipRefCheck: skipRefCheck);
 
-      if (isRef && (skipRefCheck == false)) {
+      if (code != null) {
         reporter.atElement(
           param,
-          refParamCode,
-        );
-      }
-
-      final isProvider = LintHelper.isRiverpodProviderFromType(type);
-
-      if (isProvider) {
-        reporter.atElement(
-          param,
-          providerParamCode,
+          code,
         );
       }
     }
@@ -38,22 +48,12 @@ class LintChecker {
       VariableElement variable, ErrorReporter reporter) {
     final type = variable.declaration.type;
 
-    final isRef = LintHelper.isAnyRef(type);
+    final code = checkType(type);
 
-    if (isRef) {
+    if (code != null) {
       reporter.atElement(
         variable,
-        refParamCode,
-      );
-      return;
-    }
-
-    final isProvider = LintHelper.isRiverpodProviderFromType(type);
-
-    if (isProvider) {
-      reporter.atElement(
-        variable,
-        providerParamCode,
+        code,
       );
     }
   }

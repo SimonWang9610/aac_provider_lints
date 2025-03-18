@@ -3,6 +3,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+class WidgetTwo extends ConsumerWidget {
+  const WidgetTwo({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container();
+  }
+
+  void _ref(Ref ref) {}
+
+  void refPublic(
+      // expect_lint: avoid_ref_parameter
+      Ref ref) {}
+
+  void _widgetRef(WidgetRef widgetRef) {}
+
+  void widgetRefPublic(
+      // expect_lint: avoid_ref_parameter
+      WidgetRef widgetRef) {}
+}
+
 class WidgetA extends StatelessWidget {
   // expect_lint: avoid_ref_parameter
   final Ref ref;
@@ -19,13 +40,17 @@ class WidgetA extends StatelessWidget {
     return Container();
   }
 
-  void _ref(Ref ref) {}
+  void _ref(
+      // expect_lint: avoid_ref_parameter
+      Ref ref) {}
 
   void refPublic(
       // expect_lint: avoid_ref_parameter
       Ref ref) {}
 
-  void _widgetRef(WidgetRef widgetRef) {}
+  void _widgetRef(
+      // expect_lint: avoid_ref_parameter
+      WidgetRef widgetRef) {}
 
   void widgetRefPublic(
       // expect_lint: avoid_ref_parameter

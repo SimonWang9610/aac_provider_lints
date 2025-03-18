@@ -56,3 +56,21 @@ const refInlineCode = LintCode(
       "Declare a variable and assign the inline invocation to it,"
       " like `final providerValue = ref.watch(provider);` Or wrap the inline invocation in a function.",
 );
+
+const publicPropertyCode = LintCode(
+  name: 'prefer_private_provider_property',
+  problemMessage: "riverpod provider suggestions",
+  errorSeverity: ErrorSeverity.INFO,
+  correctionMessage:
+      "Make the property private to restrict its scope to the file or the provider. "
+      "Or exposing the property in the provider's state;"
+      "Or extracting the property into a separate provider.",
+);
+
+const useGeneratorCode = LintCode(
+  name: 'prefer_riverpod_generator',
+  problemMessage: "riverpod provider suggestions",
+  errorSeverity: ErrorSeverity.INFO,
+  correctionMessage:
+      "Prefer using the Riverpod generator to create providers. see: https://riverpod.dev/docs/concepts/about_code_generation",
+);

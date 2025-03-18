@@ -63,6 +63,7 @@ final _fFamilyAutoDispose =
   return 0;
 });
 
+// expect_lint: prefer_riverpod_generator
 class _Notifier extends StateNotifier<int> {
   _Notifier() : super(0);
 }

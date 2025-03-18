@@ -13,8 +13,7 @@ and the Flutter guide for
 
 # Custom Riverpod bad practice lints
 
-✅
-❌
+## TODO
 
 ## `avoid_ref_parameter`
 The WidgetRef/Ref has their own lifecycle that is bound to the widget or provider self,
@@ -113,3 +112,11 @@ class SomeWidget extends ConsumerWidget {
   }
 }
 ```
+
+## `prefer_private_provider_property`
+
+TODO
+
+## `prefer_riverpod_generator`
+
+TODO

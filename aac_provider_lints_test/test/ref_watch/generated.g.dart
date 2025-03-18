@@ -68,7 +68,7 @@ final sProvider = AutoDisposeNotifierProvider<S, int>.internal(
 );
 
 typedef _$S = AutoDisposeNotifier<int>;
-String _$asyncHash() => r'a1ca29a6acfc6001e6c77f57d77ea91ba1c0a089';
+String _$asyncHash() => r'3e9a9a9e4efb028ce3fe7959053f9caf5533a206';
 
 /// See also [Async].
 @ProviderFor(Async)

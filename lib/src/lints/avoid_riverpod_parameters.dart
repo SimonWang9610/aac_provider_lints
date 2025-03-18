@@ -37,13 +37,13 @@ class AvoidRiverpodMethodParameter extends RiverpodLintRule {
     ErrorReporter reporter,
     CustomLintContext context,
   ) {
-    /// check if a parameter of a widget is a widget ref
     context.registry.addMethodDeclaration((node) {
       final methodName = node.declaredElement?.name;
 
-      final isBuildMethod = LintHelper.isConsumerWidgetBuildMethod(node);
+      final isConsumerWidget = LintHelper.enclosingWithConsumerWidget(node);
+      final isBuildMethod = node.declaredElement?.name == 'build';
 
-      if (isBuildMethod) return;
+      if (isConsumerWidget && isBuildMethod) return;
 
       final parameters = node.declaredElement?.parameters ?? [];
 
@@ -52,7 +52,7 @@ class AvoidRiverpodMethodParameter extends RiverpodLintRule {
       LintChecker.checkRiverpodParameters(
         parameters,
         reporter,
-        skipRefCheck: isPrivate,
+        skipRefCheck: isPrivate && isConsumerWidget,
       );
     });
   }
@@ -67,6 +67,31 @@ class AvoidRiverpodClassParameter extends RiverpodLintRule {
     ErrorReporter reporter,
     CustomLintContext context,
   ) {
+    // context.registry.addClassDeclaration(
+    //   (node) {
+    //     final declarations = node.members.whereType<FieldDeclaration>();
+
+    //     for (final field in declarations) {
+    //       final variables = field.fields.variables;
+
+    //       for (final variable in variables) {
+    //         final initialized = variable.initializer != null;
+
+    //         if (!initialized) continue;
+
+    //         final code = LintChecker.checkType(variable.declaredElement?.type);
+
+    //         if (code != null) {
+    //           reporter.atNode(
+    //             variable,
+    //             code,
+    //           );
+    //         }
+    //       }
+    //     }
+    //   },
+    // );
+
     context.registry.addVariableDeclaration(
       (variable) {
         final initializer = variable.initializer;
@@ -80,7 +105,7 @@ class AvoidRiverpodClassParameter extends RiverpodLintRule {
   }
 }
 
-const parameterLints = [
+const riverpodParameterLints = [
   AvoidRiverpodFunctionParameter(),
   AvoidRiverpodMethodParameter(),
   AvoidRiverpodClassParameter(),

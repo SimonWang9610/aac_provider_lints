@@ -10,6 +10,12 @@ class LintHelper {
     return providerOrFamilyType.isAssignableFromType(type);
   }
 
+  static bool isRiverpodProviderFromElement(Element? element) {
+    if (element == null) return false;
+
+    return providerOrFamilyType.isAssignableFrom(element);
+  }
+
   static bool isAnyRef(DartType type) {
     return anyRefType.isAssignableFromType(type);
   }
@@ -101,10 +107,12 @@ class LintHelper {
   }
 
   static bool isRiverpodNotifier(DartType type) {
-    return anyNotifierType.isAssignableFromType(type);
+    return anyNotifierType.isAssignableFromType(type) ||
+        stateNotifierType.isAssignableFromType(type) ||
+        changeNotifierType.isAssignableFromType(type);
   }
 
-  static bool isConsumerWidgetBuildMethod(MethodDeclaration method) {
+  static bool enclosingWithConsumerWidget(MethodDeclaration method) {
     final enclosingClassType = method
         .thisOrAncestorOfType<ClassDeclaration>()
         ?.declaredElement
